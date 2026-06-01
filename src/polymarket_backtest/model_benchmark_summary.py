@@ -36,6 +36,9 @@ class ModelBenchmarkRow:
     market_echo_share_1bp: float
     actionable_rows: int
     mean_abs_diff_to_yes_mid: float
+    brier_score: float
+    brier_resolved_rows: int
+    brier_excluded_rows: int
     diagnosis_flags: str
     risk_flags: str
     benchmark_rank: int
@@ -214,6 +217,9 @@ def build_benchmark_rows(
                 market_echo_share_1bp=safe_float(diagnostics.get("market_echo_share_1bp")),
                 actionable_rows=safe_int(diagnostics.get("actionable_rows")),
                 mean_abs_diff_to_yes_mid=safe_float(diagnostics.get("mean_abs_diff_to_yes_mid")),
+                brier_score=safe_float(diagnostics.get("brier_score")),
+                brier_resolved_rows=safe_int(diagnostics.get("brier_resolved_rows")),
+                brier_excluded_rows=safe_int(diagnostics.get("brier_excluded_rows")),
                 diagnosis_flags=safe_str(diagnostics.get("diagnosis_flags")),
                 risk_flags=build_risk_flags(
                     audit,
@@ -229,6 +235,12 @@ def build_benchmark_rows(
         ModelBenchmarkRow(**{**asdict(row), "benchmark_rank": index + 1})
         for index, row in enumerate(ranked)
     ]
+
+
+def format_brier_score(row: ModelBenchmarkRow) -> str:
+    if row.brier_resolved_rows <= 0:
+        return "n/a"
+    return f"{row.brier_score:.4f}"
 
 
 def write_csv(rows: list[ModelBenchmarkRow], output_path: Path) -> None:
@@ -255,8 +267,8 @@ def write_markdown(rows: list[ModelBenchmarkRow], output_path: Path, rank_mode: 
         "",
         rank_note,
         "",
-        "| rank | benchmark | provider | model | audit | coverage | echo <=1bp | actionable | cost | survival | initial | mark equity | mark P&L | calls | opened | open | risk flags |",
-        "|---:|---|---|---|---|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|---:|---|",
+        "| rank | benchmark | provider | model | audit | coverage | echo <=1bp | actionable | brier | resolved | excluded | cost | survival | initial | mark equity | mark P&L | calls | opened | open | risk flags |",
+        "|---:|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|---:|---|",
     ]
     for row in rows:
         pnl = row.final_equity - row.initial_bankroll
@@ -264,7 +276,8 @@ def write_markdown(rows: list[ModelBenchmarkRow], output_path: Path, rank_mode: 
             "| "
             f"{row.benchmark_rank} | {row.benchmark} | {row.provider} | {row.model} | "
             f"{row.audit_status} | {row.coverage:.2%} | {row.market_echo_share_1bp:.2%} | "
-            f"{row.actionable_rows} | {row.total_cost:.4f} | "
+            f"{row.actionable_rows} | {format_brier_score(row)} | {row.brier_resolved_rows} | "
+            f"{row.brier_excluded_rows} | {row.total_cost:.4f} | "
             f"{row.survival_state or 'missing'} | {row.initial_bankroll:.2f} | {row.final_equity:.2f} | {pnl:.2f} | "
             f"{row.forecast_calls} | {row.positions_opened} | {row.open_positions} | {row.risk_flags or 'none'} |"
         )
@@ -279,6 +292,8 @@ def write_markdown(rows: list[ModelBenchmarkRow], output_path: Path, rank_mode: 
             "- `multi_provider_counts` and `multi_model_counts` require explicit manifest labels before model-to-survival matching can be trusted.",
             "- `market_echo` means most forecasts are effectively the YES bid/ask midpoint; that is useful for plumbing but weak evidence of independent predictive signal.",
             "- `actionable` counts forecasts whose YES or NO edge crosses the configured strategy threshold before liquidity and portfolio constraints.",
+            "- `brier` is the mean squared error between `fair_yes` and resolved YES/NO outcomes when official outcomes are present; `resolved=0` is rendered as `n/a` because calibration is not yet measurable.",
+            "- `excluded` counts unresolved or invalid rows omitted from Brier/calibration scoring. Calibration bins are written to each benchmark's `latest_diagnostics.json`.",
             "- `cost` is forecast/model cost from the imported forecast file; it is not gas, exchange fees, or order-execution slippage.",
             "- `calls` is the number of forecast lookups consumed by the replay; `opened` and `open` are opened positions and positions still unresolved at replay end.",
             "- `mark equity` is cash plus open-position mark value at the replay engine's effective bid price, using the last valid bid when configured. Treat it as provisional when `open > 0` because unresolved exposure can still move before market resolution.",

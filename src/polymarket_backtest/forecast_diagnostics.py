@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from .forecast_audit import load_forecast_rows, safe_float
+from .metrics import calibration_report_from_rows
 
 
 @dataclass(frozen=True)
@@ -33,6 +34,10 @@ class ForecastDiagnostics:
     no_edge_ge_threshold: int
     actionable_rows: int
     edge_threshold: float
+    brier_score: float
+    brier_resolved_rows: int
+    brier_excluded_rows: int
+    calibration_bins: list[dict[str, float | int]]
     diagnosis_flags: str
 
 
@@ -45,7 +50,11 @@ def mean(values: list[float]) -> float:
     return sum(values) / len(values) if values else 0.0
 
 
-def diagnose_forecasts(rows: list[dict[str, Any]], edge_threshold: float = 0.08) -> ForecastDiagnostics:
+def diagnose_forecasts(
+    rows: list[dict[str, Any]],
+    edge_threshold: float = 0.08,
+    outcome_rows: list[dict[str, Any]] | None = None,
+) -> ForecastDiagnostics:
     diffs_to_mid: list[float] = []
     yes_spreads: list[float] = []
     no_spreads: list[float] = []
@@ -111,6 +120,9 @@ def diagnose_forecasts(rows: list[dict[str, Any]], edge_threshold: float = 0.08)
         flags.append("market_echo")
     if actionable_rows == 0:
         flags.append("no_actionable_edges")
+    calibration = calibration_report_from_rows(rows, outcome_rows=outcome_rows)
+    if calibration.resolved_rows == 0:
+        flags.append("missing_resolved_outcomes")
     return ForecastDiagnostics(
         records=records,
         rows_with_yes_quotes=rows_with_yes_quotes,
@@ -132,6 +144,10 @@ def diagnose_forecasts(rows: list[dict[str, Any]], edge_threshold: float = 0.08)
         no_edge_ge_threshold=no_edge_ge_threshold,
         actionable_rows=actionable_rows,
         edge_threshold=edge_threshold,
+        brier_score=calibration.brier_score,
+        brier_resolved_rows=calibration.resolved_rows,
+        brier_excluded_rows=calibration.excluded_rows,
+        calibration_bins=calibration.calibration_bins,
         diagnosis_flags=";".join(flags),
     )
 

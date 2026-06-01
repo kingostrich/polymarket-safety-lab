@@ -72,7 +72,11 @@ def run_model_benchmark(
     atomic_write_json(audit_path, asdict(audit))
     if audit.status != "PASS":
         raise RuntimeError(f"forecast audit failed for {benchmark_name}: {audit_path}")
-    diagnostics = diagnose_forecasts([asdict(record) for record in records], edge_threshold=edge_threshold)
+    diagnostics = diagnose_forecasts(
+        [asdict(record) for record in records],
+        edge_threshold=edge_threshold,
+        outcome_rows=source_rows,
+    )
     diagnostics_path = imported_dir / "latest_diagnostics.json"
     atomic_write_json(diagnostics_path, asdict(diagnostics))
 
@@ -140,6 +144,9 @@ def run_model_benchmark(
         "diagnosis_flags": diagnostics.diagnosis_flags,
         "market_echo_share_1bp": diagnostics.market_echo_share_1bp,
         "actionable_rows": diagnostics.actionable_rows,
+        "brier_score": diagnostics.brier_score,
+        "brier_resolved_rows": diagnostics.brier_resolved_rows,
+        "brier_excluded_rows": diagnostics.brier_excluded_rows,
         "survival_state": survival_result.state,
         "final_equity": survival_result.final_equity,
         "positions_opened": survival_result.positions_opened,
