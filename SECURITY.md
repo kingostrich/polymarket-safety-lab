@@ -8,7 +8,7 @@ This repository currently supports a paper-only research scaffold. It does not s
 
 For sensitive security reports, use GitHub Private Vulnerability Reporting if it is available for this repository:
 
-https://github.com/kingostrich/polymarket-ai-trading-agent/security/advisories/new
+https://github.com/kingostrich/polymarket-safety-lab/security/advisories/new
 
 Do not post exploit details, secrets, private account information, or vulnerability proof-of-concepts in public issues.
 

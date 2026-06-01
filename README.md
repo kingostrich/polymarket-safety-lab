@@ -1,4 +1,4 @@
-# Polymarket Prediction-Market Safety Lab
+# Polymarket Safety Lab
 
 Paper-only Polymarket prediction-market backtesting, forecast auditing, and live-readiness safety gates.
 
@@ -12,7 +12,7 @@ This project is an open-source research scaffold for evaluating prediction-marke
 
 It is not investment advice. It does not place orders, sign messages, move assets, use private keys, or provide a production trading system.
 
-**Name disclaimer:** the repository name comes from the original research direction around prediction-market agents. The implementation has intentionally been narrowed into a safety lab and backtesting simulator. Live trading, wallet signing, and private-key workflows are not implemented.
+**Name note:** this repository was renamed from its original trading-agent research name to make the current scope explicit. The implementation is a safety lab and backtesting simulator. Live trading, wallet signing, and private-key workflows are not implemented.
 
 ## Core Capabilities
 
@@ -53,9 +53,11 @@ Start with:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
-PYTHONPATH=src python -m polymarket_backtest.cli --snapshots data/mock/snapshots.csv --bankroll 100
+pip install -e ".[dev]"
+pmlab-backtest --snapshots data/mock/snapshots.csv --bankroll 100
 ```
+
+The clone-to-result walkthrough is in `docs/quickstart_walkthrough.md`.
 
 Collect a recent resolved binary-market sample and run a neutral plumbing backtest:
 
@@ -177,6 +179,7 @@ The latest 100-row exit-policy probe is summarized in `docs/model_bench_100_exit
 The latest resolved-market settlement smoke is summarized in `docs/settled_pnl_smoke_20260531.md`.
 The latest forward paper resolution check is summarized in `docs/forward_resolution_status_20260531.md`.
 The latest no-live-trading readiness gate is summarized in `docs/strategy_readiness_gate.md`.
+The readiness rules are specified in `docs/safety_gate_spec.md`.
 The latest 100-row model-variant comparison is summarized in `docs/model_variant_comparison_100.md`.
 
 Prepare a larger 100-row blind benchmark packet from the accumulated forward logs:
