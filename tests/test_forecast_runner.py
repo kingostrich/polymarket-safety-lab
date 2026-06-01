@@ -1,12 +1,11 @@
 import csv
+import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import unittest
 
 from polymarket_backtest.forecast_providers import ForecastFileProvider, RuleBaselineForecastProvider
 from polymarket_backtest.forecast_runner import build_forecast_records, row_input_hash, write_forecast_records
 from polymarket_backtest.survival import simulate_survival
-
 
 ROW = {
     "logged_at": "2026-01-01T00:00:00+00:00",

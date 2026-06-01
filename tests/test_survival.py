@@ -1,13 +1,18 @@
 import csv
-from datetime import datetime, timezone
+import unittest
+from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import unittest
 
 from polymarket_backtest.forecast_providers import RecordedForecastProvider, SyntheticEdgeForecastProvider
 from polymarket_backtest.models import Side
-from polymarket_backtest.survival import Resolution, drawdown_curve_for_policy, load_paper_rows, max_drawdown, simulate_survival
-
+from polymarket_backtest.survival import (
+    Resolution,
+    drawdown_curve_for_policy,
+    load_paper_rows,
+    max_drawdown,
+    simulate_survival,
+)
 
 FIELDNAMES = [
     "logged_at",
@@ -38,7 +43,7 @@ def write_rows(path: Path, rows: list[dict[str, str]]) -> None:
 
 class SurvivalTest(unittest.TestCase):
     def test_timestamp_close_drawdown_uses_last_mark_per_timestamp(self) -> None:
-        timestamp = datetime(2026, 1, 1, tzinfo=timezone.utc)
+        timestamp = datetime(2026, 1, 1, tzinfo=UTC)
         event_curve = [100.0, 80.0, 95.0]
         timestamp_marks = [(timestamp, 80.0), (timestamp, 95.0)]
 
@@ -53,8 +58,8 @@ class SurvivalTest(unittest.TestCase):
         self.assertAlmostEqual(timestamp_close_drawdown, 0.05)
 
     def test_timestamp_close_drawdown_sorts_marks_by_timestamp(self) -> None:
-        earlier = datetime(2026, 1, 1, tzinfo=timezone.utc)
-        later = datetime(2026, 1, 2, tzinfo=timezone.utc)
+        earlier = datetime(2026, 1, 1, tzinfo=UTC)
+        later = datetime(2026, 1, 2, tzinfo=UTC)
         event_curve = [100.0, 70.0, 90.0, 95.0]
         timestamp_marks = [(later, 70.0), (earlier, 90.0), (later, 95.0)]
 
@@ -373,7 +378,7 @@ class SurvivalTest(unittest.TestCase):
         resolutions = {
             "m1": Resolution(
                 market_id="m1",
-                resolved_at=datetime(2026, 1, 2, tzinfo=timezone.utc),
+                resolved_at=datetime(2026, 1, 2, tzinfo=UTC),
                 outcome=Side.YES,
             )
         }
@@ -420,7 +425,7 @@ class SurvivalTest(unittest.TestCase):
         resolutions = {
             "m1": Resolution(
                 market_id="m1",
-                resolved_at=datetime(2026, 1, 2, tzinfo=timezone.utc),
+                resolved_at=datetime(2026, 1, 2, tzinfo=UTC),
                 outcome=Side.YES,
             )
         }
@@ -695,7 +700,7 @@ class SurvivalTest(unittest.TestCase):
         resolutions = {
             "m1": Resolution(
                 market_id="m1",
-                resolved_at=datetime(2026, 1, 2, tzinfo=timezone.utc),
+                resolved_at=datetime(2026, 1, 2, tzinfo=UTC),
                 outcome=Side.YES,
             )
         }
@@ -1677,7 +1682,7 @@ class SurvivalTest(unittest.TestCase):
         resolutions = {
             "m1": Resolution(
                 market_id="m1",
-                resolved_at=datetime(2026, 1, 2, tzinfo=timezone.utc),
+                resolved_at=datetime(2026, 1, 2, tzinfo=UTC),
                 outcome=Side.NO,
             )
         }

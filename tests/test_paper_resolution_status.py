@@ -1,7 +1,7 @@
-from pathlib import Path
-from tempfile import TemporaryDirectory
 import csv
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from polymarket_backtest.paper_resolution_status import parse_market_status, write_outputs
 

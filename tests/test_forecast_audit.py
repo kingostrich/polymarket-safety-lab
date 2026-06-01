@@ -3,7 +3,6 @@ import unittest
 from polymarket_backtest.forecast_audit import audit_forecasts
 from polymarket_backtest.forecast_runner import row_input_hash
 
-
 ROW = {
     "logged_at": "2026-01-01T00:00:00+00:00",
     "market_id": "m1",

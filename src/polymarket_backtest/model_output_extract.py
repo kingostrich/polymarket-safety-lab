@@ -8,7 +8,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-
 REQUIRED_KEYS = {"logged_at", "market_id", "input_hash", "fair_yes", "cost", "reasoning"}
 
 

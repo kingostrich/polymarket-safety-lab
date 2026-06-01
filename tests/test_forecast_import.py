@@ -1,6 +1,6 @@
+import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import unittest
 
 from polymarket_backtest.forecast_audit import audit_forecasts
 from polymarket_backtest.forecast_import import (
@@ -8,7 +8,6 @@ from polymarket_backtest.forecast_import import (
     write_model_prompt_template,
 )
 from polymarket_backtest.forecast_runner import row_input_hash
-
 
 ROW = {
     "logged_at": "2026-01-01T00:00:00+00:00",

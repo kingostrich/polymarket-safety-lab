@@ -11,7 +11,6 @@ from typing import Any
 
 from .survival import load_paper_rows, parse_timestamp
 
-
 SUBSET_FILE_RE = re.compile(r"^paper_signals_subset_\d{8}T\d{6}Z\.(csv|jsonl)$")
 
 

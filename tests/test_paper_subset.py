@@ -1,12 +1,11 @@
-from pathlib import Path
-from tempfile import TemporaryDirectory
 import csv
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from polymarket_backtest import paper_subset
 from polymarket_backtest.paper_subset import run_subset
-
 
 FIELDNAMES = [
     "logged_at",

@@ -14,7 +14,6 @@ from .forecast_providers import ForecastFileProvider, ForecastProvider, create_f
 from .models import MarketSnapshot, Position, Side
 from .strategy import build_signal
 
-
 EPSILON = 1e-12
 
 

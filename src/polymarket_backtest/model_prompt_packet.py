@@ -3,12 +3,11 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from .forecast_audit import load_forecast_rows
-
 
 PROMPT_HEADER = """You are producing a Polymarket model-output benchmark file, not investment advice.
 
@@ -175,7 +174,7 @@ def write_packet(
     summary_md = summary_md_for_harness or f"docs/{benchmark_name}_summary.md"
     atomic_write_text(output_path, content)
     manifest = {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "template_path": str(template_path),
         "output_path": str(output_path),
         "benchmark_name": benchmark_name,

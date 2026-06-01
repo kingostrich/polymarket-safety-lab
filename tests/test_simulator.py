@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
 import unittest
+from datetime import UTC, datetime
 
 from polymarket_backtest.models import MarketSnapshot, Side
 from polymarket_backtest.simulator import run_backtest
@@ -9,7 +9,7 @@ class SimulatorTest(unittest.TestCase):
     def test_forced_signal_opens_and_settles_yes_position(self) -> None:
         snapshots = [
             MarketSnapshot(
-                timestamp=datetime(2026, 1, 1, tzinfo=timezone.utc),
+                timestamp=datetime(2026, 1, 1, tzinfo=UTC),
                 market_id="m1",
                 question="Will it happen?",
                 yes_price=0.50,
@@ -17,7 +17,7 @@ class SimulatorTest(unittest.TestCase):
                 fair_yes=0.62,
             ),
             MarketSnapshot(
-                timestamp=datetime(2026, 1, 2, tzinfo=timezone.utc),
+                timestamp=datetime(2026, 1, 2, tzinfo=UTC),
                 market_id="m1",
                 question="Will it happen?",
                 yes_price=1.00,

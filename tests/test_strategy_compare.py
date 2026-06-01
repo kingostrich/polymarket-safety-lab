@@ -1,8 +1,8 @@
 import csv
+import unittest
 from dataclasses import asdict
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import unittest
 
 from polymarket_backtest.report_summary import SurvivalReportSummary
 from polymarket_backtest.strategy_compare import (

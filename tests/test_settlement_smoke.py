@@ -1,7 +1,7 @@
-from pathlib import Path
-from tempfile import TemporaryDirectory
 import csv
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from polymarket_backtest.settlement_smoke import build_oracle_smoke_rows, write_rows
 

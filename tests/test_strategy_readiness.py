@@ -1,6 +1,6 @@
+import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import unittest
 
 from polymarket_backtest.strategy_readiness import assess_readiness, load_benchmark_manifest, load_json, write_markdown
 

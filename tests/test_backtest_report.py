@@ -1,8 +1,8 @@
-from pathlib import Path
-from tempfile import TemporaryDirectory
 import csv
 import json
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from polymarket_backtest.backtest_report import run_and_write_report
 

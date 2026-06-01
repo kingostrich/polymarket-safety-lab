@@ -1,6 +1,6 @@
+import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import unittest
 from unittest.mock import patch
 
 from polymarket_backtest.paper_gate_cycle import resolve_oracle_metrics_path, run_paper_gate_cycle

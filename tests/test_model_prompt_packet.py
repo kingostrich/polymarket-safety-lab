@@ -1,7 +1,7 @@
-from pathlib import Path
-from tempfile import TemporaryDirectory
 import json
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from polymarket_backtest.model_prompt_packet import build_prompt_packet, write_packet
 

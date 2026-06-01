@@ -1,7 +1,7 @@
-from pathlib import Path
-from tempfile import TemporaryDirectory
 import json
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from polymarket_backtest.model_output_extract import extract_json_objects, extract_model_output
 

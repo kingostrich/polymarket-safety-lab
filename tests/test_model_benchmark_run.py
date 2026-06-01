@@ -1,12 +1,11 @@
-from pathlib import Path
-from tempfile import TemporaryDirectory
 import csv
 import json
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from polymarket_backtest.forecast_runner import row_input_hash
 from polymarket_backtest.model_benchmark_run import run_model_benchmark
-
 
 FIELDNAMES = [
     "logged_at",

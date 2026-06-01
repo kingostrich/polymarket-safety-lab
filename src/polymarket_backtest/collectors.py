@@ -11,7 +11,6 @@ from typing import Any
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-
 GAMMA_API = "https://gamma-api.polymarket.com"
 CLOB_API = "https://clob.polymarket.com"
 

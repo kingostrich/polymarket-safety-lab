@@ -14,7 +14,6 @@ from typing import Any
 from .forecast_providers import create_forecast_provider
 from .survival import load_paper_rows
 
-
 HASH_FIELDS = [
     "logged_at",
     "market_id",

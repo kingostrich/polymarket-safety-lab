@@ -9,7 +9,8 @@ from typing import Any
 
 from .model_variant_compare import build_report as build_variant_report
 from .resolution_replay_cycle import run_resolution_replay_cycle
-from .strategy_readiness import assess_readiness, load_benchmark_manifest, load_json, write_markdown as write_readiness_markdown
+from .strategy_readiness import assess_readiness, load_benchmark_manifest, load_json
+from .strategy_readiness import write_markdown as write_readiness_markdown
 
 
 def atomic_write_json(path: Path, payload: dict[str, Any]) -> None:

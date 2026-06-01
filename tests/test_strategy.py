@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
 import unittest
+from datetime import UTC, datetime
 
 from polymarket_backtest.models import MarketSnapshot, Side
 from polymarket_backtest.strategy import build_signal, kelly_fraction
@@ -11,7 +11,7 @@ class StrategyTest(unittest.TestCase):
 
     def test_builds_yes_signal_for_positive_edge(self) -> None:
         snapshot = MarketSnapshot(
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             market_id="m1",
             question="Will it happen?",
             yes_price=0.50,
@@ -24,7 +24,7 @@ class StrategyTest(unittest.TestCase):
 
     def test_builds_no_signal_for_negative_yes_edge(self) -> None:
         snapshot = MarketSnapshot(
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             market_id="m2",
             question="Will it happen?",
             yes_price=0.72,

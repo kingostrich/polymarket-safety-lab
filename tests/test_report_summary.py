@@ -1,8 +1,8 @@
 import csv
 import json
+import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import unittest
 
 from polymarket_backtest.report_summary import safe_int, summarize_survival_reports, write_csv
 
