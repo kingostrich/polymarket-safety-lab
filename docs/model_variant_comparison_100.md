@@ -1,6 +1,6 @@
 # Model Variant Comparison
 
-Generated: 2026-05-31T09:45:09.122996+00:00
+Generated: 2026-06-01T01:39:43.414301+00:00
 
 This report compares paper-only benchmark manifests. It is not a live-trading approval.
 

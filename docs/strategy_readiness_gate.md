@@ -1,6 +1,6 @@
 # Strategy Readiness Gate
 
-Generated: 2026-05-31T09:45:09.110491+00:00
+Generated: 2026-06-01T01:39:43.404768+00:00
 
 Decision: `NO_LIVE_TRADING`
 

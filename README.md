@@ -1,6 +1,51 @@
-# Polymarket AI Trading Agent Research
+# Polymarket Prediction-Market Safety Lab
 
-This workspace contains the architecture plan and a non-live backtesting scaffold for a Polymarket prediction-market trading bot.
+Paper-only Polymarket prediction-market backtesting, forecast auditing, and live-readiness safety gates.
+
+![Paper only](https://img.shields.io/badge/paper--only-no%20live%20trading-blue)
+![No signing](https://img.shields.io/badge/no%20signing-no%20private%20keys-green)
+![Tests](https://img.shields.io/badge/tests-137%20unit%20tests-informational)
+![Status](https://img.shields.io/badge/current%20gate-NO__LIVE__TRADING-red)
+
+This project is an open-source research scaffold for evaluating prediction-market strategies without placing live orders. It focuses on reproducible data collection, paper accounting, model forecast auditing, official-resolution replay, and explicit safety gates for AI-agent experiments.
+
+It is not investment advice. It does not place orders, sign messages, move assets, use private keys, or provide a production trading system.
+
+**Name disclaimer:** the repository name comes from the original research direction around prediction-market agents. The implementation has intentionally been narrowed into a safety lab and backtesting simulator. Live trading, wallet signing, and private-key workflows are not implemented.
+
+## Core Capabilities
+
+- Historical collection for resolved binary Polymarket markets.
+- Forward paper logger for market snapshots and orderbook summaries.
+- Forecast audit/import tools for rule-based and external model outputs.
+- Survival replay for bankroll, open-position, MDD, and settlement accounting.
+- Readiness gates that keep the project in `NO_LIVE_TRADING` until evidence is strong enough for a separate safety review.
+
+## Current Status
+
+The current internal strategy-readiness decision is `NO_LIVE_TRADING`.
+
+These are paper-simulation safety blockers, not build failures:
+
+- Active model benchmark underperforms the no-trade baseline.
+- Mark-to-market P&L is negative on the current 100-row paper sample.
+- Open positions remain unsettled.
+- No official closed forward resolutions are loaded yet.
+- Closed non-oracle forward trade count is below the readiness threshold.
+
+Use this repository as a research and safety-validation environment, not as a live trading bot.
+
+## Hard Safety Boundaries
+
+- Do not add live order placement, exchange/broker execution, wallet signing, or asset movement.
+- Do not add private-key loaders, seed phrase handling, or transaction-signing flows.
+- Do not add Web3 signing dependencies such as `web3.py`, `eth-account`, or production Polymarket order-submission SDK paths without a separate security design review.
+- Treat all model forecasts as offline files that must pass audit before replay.
+- Treat reports as research evidence, not investment advice.
+
+The simulator includes paper accounting and configurable slippage/liquidity checks, but it cannot fully reproduce real market impact, fee changes, queue position, or liquidity exhaustion. Do not use results as the sole basis for investment decisions.
+
+## Quickstart
 
 Start with:
 
