@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "polymarket-safety-lab"
-version = "0.1.1"
+version = "0.1.2"
 description = "Paper-only Polymarket prediction-market backtesting, forecast auditing, and live-readiness safety gates."
 readme = "README.md"
 license = "MIT"
