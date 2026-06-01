@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .models import BacktestResult, ClosedTrade, MarketSnapshot, Position, Side
+from .sample_dataset_validation import validate_snapshot_header, validate_snapshot_row
 from .strategy import build_signal
 
 
@@ -18,7 +19,10 @@ def parse_side(value: str) -> Side | None:
 def load_snapshots(path: str | Path) -> list[MarketSnapshot]:
     snapshots: list[MarketSnapshot] = []
     with Path(path).open(newline="") as handle:
-        for row in csv.DictReader(handle):
+        reader = csv.DictReader(handle)
+        validate_snapshot_header(reader.fieldnames)
+        for row_num, row in enumerate(reader, start=2):
+            validate_snapshot_row(row, row_num=row_num)
             snapshots.append(
                 MarketSnapshot(
                     timestamp=datetime.fromisoformat(row["timestamp"].replace("Z", "+00:00")),

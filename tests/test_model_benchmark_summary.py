@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from polymarket_backtest.model_benchmark_summary import build_benchmark_rows
+from polymarket_backtest.model_benchmark_summary import build_benchmark_rows, write_markdown
 
 
 def write_json(path: Path, payload: dict) -> None:
@@ -40,6 +40,9 @@ class ModelBenchmarkSummaryTest(unittest.TestCase):
                     "market_echo_share_1bp": 1.0,
                     "actionable_rows": 0,
                     "mean_abs_diff_to_yes_mid": 0.0,
+                    "brier_score": 0.25,
+                    "brier_resolved_rows": 20,
+                    "brier_excluded_rows": 0,
                     "diagnosis_flags": "market_echo;no_actionable_edges",
                 },
             )
@@ -67,6 +70,8 @@ class ModelBenchmarkSummaryTest(unittest.TestCase):
         self.assertEqual(rows[0].survival_state, "ALIVE")
         self.assertEqual(rows[0].market_echo_share_1bp, 1.0)
         self.assertEqual(rows[0].actionable_rows, 0)
+        self.assertEqual(rows[0].brier_score, 0.25)
+        self.assertEqual(rows[0].brier_resolved_rows, 20)
         self.assertEqual(rows[0].risk_flags, "no_trades;market_echo;no_actionable_edges")
 
     def test_missing_survival_is_flagged(self) -> None:
@@ -257,6 +262,43 @@ class ModelBenchmarkSummaryTest(unittest.TestCase):
             rows = build_benchmark_rows(forecast_root, survival_root, "model_bench_20_survival_")
 
         self.assertAlmostEqual(rows[0].total_cost, 0.12)
+
+    def test_markdown_renders_unresolved_brier_as_not_available(self) -> None:
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            forecast_root = root / "forecasts"
+            survival_root = root / "paper"
+            output_md = root / "summary.md"
+            write_json(
+                forecast_root / "unresolved" / "latest_audit.json",
+                {
+                    "status": "PASS",
+                    "source_rows": 3,
+                    "forecast_records": 3,
+                    "matched_records": 3,
+                    "coverage": 1.0,
+                    "provider_counts": "provider:3",
+                    "model_counts": "model-x:3",
+                },
+            )
+            write_json(
+                forecast_root / "unresolved" / "latest_diagnostics.json",
+                {
+                    "brier_score": 0.0,
+                    "brier_resolved_rows": 0,
+                    "brier_excluded_rows": 3,
+                    "diagnosis_flags": "missing_resolved_outcomes",
+                },
+            )
+
+            rows = build_benchmark_rows(forecast_root, survival_root, "model_bench_20_survival_")
+            write_markdown(rows, output_md)
+            content = output_md.read_text()
+
+        self.assertIn("| unresolved | provider | model-x | PASS |", content)
+        self.assertIn("| 0 | n/a | 0 | 3 |", content)
+        self.assertNotIn("| 0 | 0.0000 | 0 | 3 |", content)
+        self.assertIn("Calibration bins are written", content)
 
 
 if __name__ == "__main__":

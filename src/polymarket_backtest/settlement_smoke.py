@@ -5,10 +5,18 @@ import csv
 import os
 from pathlib import Path
 
+from .sample_dataset_validation import validate_snapshot_header, validate_snapshot_row
+
 
 def read_rows(path: Path) -> list[dict[str, str]]:
     with path.open(newline="") as handle:
-        return list(csv.DictReader(handle))
+        reader = csv.DictReader(handle)
+        validate_snapshot_header(reader.fieldnames)
+        rows: list[dict[str, str]] = []
+        for row_num, row in enumerate(reader, start=2):
+            validate_snapshot_row(row, row_num=row_num)
+            rows.append(row)
+        return rows
 
 
 def resolved_outcomes(rows: list[dict[str, str]]) -> dict[str, str]:
