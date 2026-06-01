@@ -3,12 +3,14 @@
 작성일: 2026-05-27  
 범위: PDF 전략 분석, 개발 아키텍처, 기술 스택, 백테스팅 환경 구성. 실거래 주문 집행 구현과 자산 이동은 제외한다.
 
+> OSS 상태 메모: 이 문서는 PDF 분석 당시의 전체 아키텍처 후보를 보존한 설계 기록이다. 현재 공개 패키지(`polymarket-safety-lab`)는 paper-only safety/backtesting scaffold이며 `openai`, `anthropic`, `ccxt`, `py-clob-client-v2`, Web3 signing, live order execution 의존성을 기본 설치 또는 런타임 요구사항으로 포함하지 않는다.
+
 ## 1. 핵심 결론
 
 - PDF의 핵심 전략은 10분 주기로 500-1000개 활성 시장을 스캔하고, LLM이 산출한 YES 공정가치와 시장 가격의 차이가 8%p 이상이면 진입하며, Kelly Criterion으로 포지션을 산정하되 단일 포지션을 뱅크롤의 6%로 제한하는 구조다.
 - PDF에는 명확한 익절/손절/재평가 청산 규칙이 없다. 기본 백테스트는 `hold_to_resolution`을 기본 청산 정책으로 두고, 재평가 청산은 별도 옵션으로만 설계한다.
 - 현재 공식 문서 기준 Polymarket은 AMM이 아니라 CLOB 기반이다. 가격은 $0-$1 범위의 결과 토큰 가격이며 확률처럼 해석되지만, 실제 체결가는 midpoint가 아니라 매수 시 ask, 매도 시 bid와 호가 깊이에 의해 결정된다.
-- 최적 1차 스택은 Python 3.11+ + `py-clob-client-v2` + `httpx/websockets` + `pandas/polars/duckdb/pyarrow` + 커스텀 이벤트 기반 백테스터다. CCXT는 Polymarket 연동용이 아니라 암호화폐 외부 가격 피드 보조용으로만 둔다.
+- PDF 이식 후보 스택은 Python 3.11+ 기반 커스텀 이벤트 백테스터다. 실거래·서명·외부 거래소 연동 라이브러리는 현재 OSS 패키지 기본 의존성에서 제외한다.
 
 ## 2. 입력 PDF 및 추출 결과
 
@@ -134,14 +136,14 @@ flowchart LR
 | 계층 | 선택 | 근거 |
 |---|---|---|
 | 언어 | Python 3.11+ | 데이터 처리, LLM, 백테스트, API 통합 생태계가 가장 풍부 |
-| Polymarket SDK | `py-clob-client-v2` | 2026-05-27 공식 문서의 현재 Python CLOB 클라이언트 |
-| HTTP/WS | `httpx`, `websockets` | Gamma/Data REST와 CLOB websocket 분리 운용 |
-| 데이터프레임 | `pandas`, `polars` | pandas는 범용 분석, polars는 대량 가격 히스토리 처리 |
+| Polymarket SDK | 현재 기본 의존성 제외 | live execution/signing 오해를 막기 위해 paper-only 공개 패키지에는 포함하지 않음 |
+| HTTP/WS | 표준 라이브러리 중심 | 공개 패키지는 읽기 전용 데이터 수집과 로컬 fixture 재현성을 우선 |
+| 데이터프레임 | 필요 시 별도 optional 확장 | 현재 핵심 백테스트와 readiness gate는 표준 라이브러리 중심 |
 | 저장소 | Parquet + DuckDB | 파일 기반 재현성, 빠른 SQL 분석, 로컬 백테스트에 적합 |
-| 모델 API | `anthropic`, `openai` | PDF는 Claude를 기준으로 하고, provider 교체 가능하게 추상화 |
-| CLI | `typer`, `rich` | 백테스트 실행, 리포트 출력, 설정 검증 |
+| 모델 API | 기본 의존성 제외 | 모델 출력은 auditable file import로 다루고 API 호출은 외부 workflow로 분리 |
+| CLI | `argparse` console scripts | 설치 후 `pmlab-*` 명령으로 로컬 검증 가능 |
 | 테스트 | `pytest`, `ruff` | 전략 수식과 백테스트 회귀 검증 |
-| 외부 크립토 피드 | `ccxt` optional | Polymarket용이 아니라 crypto category context collector용 |
+| 외부 크립토 피드 | 현재 범위 제외 | 거래소 SDK는 paper-only safety 포지셔닝과 충돌하므로 공개 패키지에서 제외 |
 
 ### 5.2 Generic backtesting library를 쓰지 않는 이유
 
