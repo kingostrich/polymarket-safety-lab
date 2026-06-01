@@ -1,0 +1,14 @@
+{
+  "raw_path": "/tmp/agy_model_bench100_blind_raw.txt",
+  "output_path": "data/forecasts/next_model_blind_100/model_minimal.jsonl",
+  "manifest_path": "data/forecasts/next_model_blind_100/model_minimal.jsonl.manifest.json",
+  "raw_lines": 128,
+  "records": 100,
+  "ignored_non_json_lines": 28,
+  "malformed_json_lines": 0,
+  "missing_required_key_rows": 0,
+  "unexpected_key_rows": 0,
+  "expected_records": 100,
+  "status": "PASS",
+  "generated_at": "2026-05-30T13:10:47.782065+00:00"
+}

@@ -1,0 +1,27 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.pyc
+.DS_Store
+.Rhistory
+tmp/
+.antigravitycli/
+.env
+.env.*
+
+# Local/generated data. Keep source code, docs, tests, and tiny mock fixtures in git.
+data/raw/
+data/normalized/
+data/features/
+data/backtests/
+data/paper/
+data/forecasts/*/imported/
+data/forecasts/external_import_smoke/imported_rule_baseline/
+data/forecasts/rule_baseline/
+data/forecasts/model_bench_20/rule_baseline/
+data/forecasts/model_bench_100/rule_baseline/
+data/forecasts/model_bench_100/rule_baseline_imported/
+
+# Local image/pet experiments are unrelated to the trading bot package.
+pets/

@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-05-30T12:54:16.425126+00:00",
+  "template_path": "data/forecasts/model_bench_20/template.jsonl",
+  "output_path": "data/forecasts/model_bench_20/model_prompt_packet_blind.md",
+  "benchmark_name": "next_model_blind_smoke",
+  "model_label": "<replace_with_model_label>",
+  "context_mode": "blind",
+  "rows": 20,
+  "input_dir_for_harness": "data/paper/model_bench_20",
+  "model_output_path_for_harness": "data/forecasts/next_model_blind_smoke/model_minimal.jsonl",
+  "harness_module": "polymarket_backtest.model_benchmark_run",
+  "required_output_fields": [
+    "logged_at",
+    "market_id",
+    "input_hash",
+    "fair_yes",
+    "cost",
+    "reasoning"
+  ],
+  "note": "Prompt packet only. No orders were placed, signed, or submitted."
+}

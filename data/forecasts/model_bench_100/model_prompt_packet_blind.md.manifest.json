@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-05-30T13:08:19.363116+00:00",
+  "template_path": "data/forecasts/model_bench_100/template.jsonl",
+  "output_path": "data/forecasts/model_bench_100/model_prompt_packet_blind.md",
+  "benchmark_name": "next_model_blind_100",
+  "model_label": "Gemini 3.5 Flash High via agy blind",
+  "context_mode": "blind",
+  "rows": 100,
+  "input_dir_for_harness": "data/paper/model_bench_100",
+  "scenario_prefix": "model_bench_100_survival_",
+  "summary_csv_for_harness": "data/forecasts/next_model_blind_100/model_benchmark_summary.csv",
+  "summary_md_for_harness": "docs/next_model_blind_100_summary.md",
+  "model_output_path_for_harness": "data/forecasts/next_model_blind_100/model_minimal.jsonl",
+  "harness_module": "polymarket_backtest.model_benchmark_run",
+  "required_output_fields": [
+    "logged_at",
+    "market_id",
+    "input_hash",
+    "fair_yes",
+    "cost",
+    "reasoning"
+  ],
+  "note": "Prompt packet only. No orders were placed, signed, or submitted."
+}
