@@ -2,6 +2,7 @@
 
 Paper-only Polymarket prediction-market backtesting, forecast auditing, and live-readiness safety gates.
 
+[![CI](https://github.com/kingostrich/polymarket-safety-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/kingostrich/polymarket-safety-lab/actions/workflows/ci.yml)
 ![Paper only](https://img.shields.io/badge/paper--only-no%20live%20trading-blue)
 ![No signing](https://img.shields.io/badge/no%20signing-no%20private%20keys-green)
 ![Tests](https://img.shields.io/badge/tests-137%20unit%20tests-informational)
