@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added a paper-only exit-threshold sweep utility for comparing `edge_below` replay thresholds.
+
 ## v0.1.3 - 2026-06-02
 
 - Added resolved-market collection manifest fields that distinguish neutral plumbing data from test-only oracle smoke data.
