@@ -273,6 +273,20 @@ PYTHONPATH=src .venv/bin/python -m polymarket_backtest.model_benchmark_run \
   --rank-mode quality
 ```
 
+Sweep early-exit thresholds on identical paper rows:
+
+```bash
+PYTHONPATH=src .venv/bin/python scripts/optimize_exit_threshold.py \
+  --input-dir data/paper/model_bench_100 \
+  --forecasts-file data/forecasts/next_model_blind_100/imported/latest_forecasts.jsonl \
+  --out-dir data/paper/exit_threshold_sweep_next_model_blind_100 \
+  --threshold-start 0.01 \
+  --threshold-stop 0.20 \
+  --threshold-step 0.01
+```
+
+The sweep writes CSV, Markdown, and manifest outputs. Treat it as a paper-only mechanics comparison, not a production optimization result. Details are in `docs/exit_threshold_sweep.md`.
+
 Check official Gamma resolution status for forward paper markets and replay with conservative resolutions:
 
 ```bash
