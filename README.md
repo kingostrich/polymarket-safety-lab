@@ -1,6 +1,6 @@
 # Polymarket Safety Lab
 
-Paper-only Polymarket prediction-market backtesting, forecast auditing, and live-readiness safety gates.
+Paper-only Polymarket prediction-market backtesting, forecast auditing, and strategy-readiness safety gates.
 
 [![CI](https://github.com/kingostrich/polymarket-safety-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/kingostrich/polymarket-safety-lab/actions/workflows/ci.yml)
 ![Paper only](https://img.shields.io/badge/paper--only-no%20live%20trading-blue)
@@ -38,7 +38,7 @@ Use this repository as a research and safety-validation environment, not as a li
 
 ## Reviewer Snapshot
 
-- Latest release: [`v0.1.2`](https://github.com/kingostrich/polymarket-safety-lab/releases/tag/v0.1.2)
+- Latest release: [`v0.1.3`](https://github.com/kingostrich/polymarket-safety-lab/releases/tag/v0.1.3)
 - CI coverage: Python 3.11 tests, Python 3.12 tests, Ruff lint, and package build.
 - Local test suite: `pytest` suite across backtesting, forecast audit, calibration, survival replay, and readiness gates.
 - Core install: intentionally has no default runtime dependencies; `duckdb` is optional for export workflows.

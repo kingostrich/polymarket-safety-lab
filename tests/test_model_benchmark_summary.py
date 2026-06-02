@@ -35,6 +35,10 @@ class ModelBenchmarkSummaryTest(unittest.TestCase):
                 {"provider": "agy", "model": "agy-model", "total_cost": 0.0},
             )
             write_json(
+                forecast_root / "agy_smoke" / "latest_benchmark_manifest.json",
+                {"source_rows_fingerprint": "abcdef1234567890"},
+            )
+            write_json(
                 forecast_root / "agy_smoke" / "imported" / "latest_diagnostics.json",
                 {
                     "market_echo_share_1bp": 1.0,
@@ -66,6 +70,7 @@ class ModelBenchmarkSummaryTest(unittest.TestCase):
 
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0].benchmark, "agy_smoke/imported")
+        self.assertEqual(rows[0].source_rows_fingerprint, "abcdef1234567890")
         self.assertEqual(rows[0].audit_status, "PASS")
         self.assertEqual(rows[0].survival_state, "ALIVE")
         self.assertEqual(rows[0].market_echo_share_1bp, 1.0)
@@ -295,9 +300,10 @@ class ModelBenchmarkSummaryTest(unittest.TestCase):
             write_markdown(rows, output_md)
             content = output_md.read_text()
 
-        self.assertIn("| unresolved | provider | model-x | PASS |", content)
+        self.assertIn("| unresolved |  | provider | model-x | PASS |", content)
         self.assertIn("| 0 | n/a | 0 | 3 |", content)
         self.assertNotIn("| 0 | 0.0000 | 0 | 3 |", content)
+        self.assertIn("`source_rows_fingerprint`", content)
         self.assertIn("Calibration bins are written", content)
 
     def test_legacy_diagnostics_without_brier_marks_forecasts_excluded(self) -> None:
