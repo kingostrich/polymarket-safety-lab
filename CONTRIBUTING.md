@@ -15,8 +15,8 @@ Thanks for helping improve this paper-only prediction-market research scaffold.
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
-PYTHONPATH=src python -m unittest discover -s tests
+pip install -e ".[dev]"
+PYTHONPATH=src python -m pytest tests -q
 ```
 
 ## Pull Request Checklist
@@ -26,8 +26,10 @@ PYTHONPATH=src python -m unittest discover -s tests
 - Run:
 
 ```bash
-PYTHONPATH=src .venv/bin/python -m unittest discover -s tests
+PYTHONPATH=src .venv/bin/python -m pytest tests -q
 PYTHONPATH=src .venv/bin/python -m compileall src tests
+.venv/bin/ruff check src tests
+.venv/bin/python -m build
 ```
 
 - If the change affects readiness gates, model benchmark reports, settlement replay, auth/security, CI, or project policy, request an external review and summarize what was checked.

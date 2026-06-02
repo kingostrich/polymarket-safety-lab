@@ -32,6 +32,13 @@ Never commit:
 - Readiness reports are safety evidence, not investment advice or production approval.
 - Model forecasts must be auditable and reproducible before being used in benchmark claims.
 
+## Security Tooling
+
+- GitHub Actions runs unit tests, lint, and package-build checks on protected branches.
+- CodeQL is configured for Python static analysis.
+- Dependabot is configured for Python package and GitHub Actions update checks.
+- Pull requests that affect CI/CD, packaging, forecast import, benchmark reports, readiness gates, settlement replay, or policy should use `docs/security_review_checklist.md`.
+
 ## Current Live-Trading Status
 
 `NO_LIVE_TRADING`

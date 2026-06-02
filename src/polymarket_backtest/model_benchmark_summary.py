@@ -102,6 +102,14 @@ def select_survival_report(
     return "", {}
 
 
+def brier_excluded_rows(diagnostics: dict[str, Any], forecast_records: int) -> int:
+    if "brier_excluded_rows" in diagnostics:
+        return safe_int(diagnostics.get("brier_excluded_rows"))
+    if "brier_resolved_rows" not in diagnostics and forecast_records > 0:
+        return forecast_records
+    return 0
+
+
 def build_risk_flags(
     audit: dict[str, Any],
     survival: dict[str, Any] | None,
@@ -219,7 +227,7 @@ def build_benchmark_rows(
                 mean_abs_diff_to_yes_mid=safe_float(diagnostics.get("mean_abs_diff_to_yes_mid")),
                 brier_score=safe_float(diagnostics.get("brier_score")),
                 brier_resolved_rows=safe_int(diagnostics.get("brier_resolved_rows")),
-                brier_excluded_rows=safe_int(diagnostics.get("brier_excluded_rows")),
+                brier_excluded_rows=brier_excluded_rows(diagnostics, forecast_records),
                 diagnosis_flags=safe_str(diagnostics.get("diagnosis_flags")),
                 risk_flags=build_risk_flags(
                     audit,

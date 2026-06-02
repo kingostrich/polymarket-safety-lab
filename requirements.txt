@@ -1,8 +1,3 @@
-# Optional local export support
-duckdb>=1.0
-
-# Developer tooling
-build>=1.2
-pytest>=8.0
-ruff>=0.7
-twine>=5.0
+# Compatibility entrypoint for users who still run `pip install -r requirements.txt`.
+# Canonical dependency metadata lives in pyproject.toml.
+-e .[dev]
