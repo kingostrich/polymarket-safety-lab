@@ -51,10 +51,60 @@ class StrategyReadinessTest(unittest.TestCase):
             resolution_manifest={"resolution_eligible": 35},
             resolution_cycle_manifest={"replay_ran": True, "positions_closed": 35},
             oracle_metrics={"closed_trades": 9},
+            portfolio_risk_manifest={"status": "PASS", "violations": []},
         )
 
         self.assertEqual(readiness["decision"], "PAPER_ONLY_REVIEW")
         self.assertEqual(readiness["blocker_count"], 0)
+
+    def test_missing_portfolio_risk_manifest_blocks_readiness(self) -> None:
+        readiness = assess_readiness(
+            model_manifest={
+                "benchmark_name": "model",
+                "source_rows": 150,
+                "bankroll": 50,
+                "final_equity": 56,
+                "open_positions": 0,
+                "positions_closed": 35,
+                "resolutions_loaded": 35,
+                "market_echo_share_1bp": 0.1,
+                "actionable_rows": 70,
+                "event_max_drawdown": 0.1,
+            },
+            baseline_manifest={"benchmark_name": "baseline", "final_equity": 50},
+            resolution_manifest={"resolution_eligible": 35},
+            resolution_cycle_manifest={"replay_ran": True, "positions_closed": 35},
+            oracle_metrics={"closed_trades": 9},
+        )
+
+        portfolio_check = next(check for check in readiness["checks"] if check["name"] == "portfolio_joint_exposure")
+        self.assertEqual(portfolio_check["status"], "FAIL")
+        self.assertEqual(readiness["decision"], "NO_LIVE_TRADING")
+
+    def test_portfolio_risk_manifest_violation_blocks_readiness(self) -> None:
+        readiness = assess_readiness(
+            model_manifest={
+                "benchmark_name": "model",
+                "source_rows": 150,
+                "bankroll": 50,
+                "final_equity": 56,
+                "open_positions": 0,
+                "positions_closed": 35,
+                "resolutions_loaded": 35,
+                "market_echo_share_1bp": 0.1,
+                "actionable_rows": 70,
+                "event_max_drawdown": 0.1,
+            },
+            baseline_manifest={"benchmark_name": "baseline", "final_equity": 50},
+            resolution_manifest={"resolution_eligible": 35},
+            resolution_cycle_manifest={"replay_ran": True, "positions_closed": 35},
+            oracle_metrics={"closed_trades": 9},
+            portfolio_risk_manifest={"status": "FAIL", "violations": ["group overlap: exposure exceeds cap"]},
+        )
+
+        portfolio_check = next(check for check in readiness["checks"] if check["name"] == "portfolio_joint_exposure")
+        self.assertEqual(portfolio_check["status"], "FAIL")
+        self.assertEqual(readiness["decision"], "NO_LIVE_TRADING")
 
     def test_markdown_writer_and_loader(self) -> None:
         readiness = assess_readiness(

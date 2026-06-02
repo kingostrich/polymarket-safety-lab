@@ -1,0 +1,27 @@
+{
+  "portfolio_id": "candidate_hedge_v1",
+  "groups": [
+    {
+      "group_id": "overlapping_election_markets",
+      "description": "Paper-only example for related prediction-market legs.",
+      "max_joint_notional": 25,
+      "max_correlation": 0.9,
+      "legs": [
+        {
+          "market_id": "market-candidate-a-wins",
+          "side": "YES",
+          "max_notional": 10,
+          "hedge_role": "primary",
+          "correlation": 0.8
+        },
+        {
+          "market_id": "market-candidate-b-wins",
+          "side": "NO",
+          "max_notional": 12,
+          "hedge_role": "hedge",
+          "correlation": -0.7
+        }
+      ]
+    }
+  ]
+}

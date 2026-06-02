@@ -46,6 +46,7 @@ pmlab-survival = "polymarket_backtest.survival:main"
 pmlab-forecast-audit = "polymarket_backtest.forecast_audit:main"
 pmlab-model-summary = "polymarket_backtest.model_benchmark_summary:main"
 pmlab-paper-gate = "polymarket_backtest.paper_gate_cycle:main"
+pmlab-portfolio-validate = "polymarket_backtest.portfolio_schema:main"
 
 [project.urls]
 Homepage = "https://github.com/kingostrich/polymarket-safety-lab"
