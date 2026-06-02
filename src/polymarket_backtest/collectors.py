@@ -13,6 +13,9 @@ from urllib.request import Request, urlopen
 
 GAMMA_API = "https://gamma-api.polymarket.com"
 CLOB_API = "https://clob.polymarket.com"
+RESOLUTION_PRICE_THRESHOLD = 0.999
+NEUTRAL_DATASET_KIND = "neutral_plumbing"
+ORACLE_SMOKE_DATASET_KIND = "oracle_settlement_smoke"
 
 
 def ssl_context() -> ssl.SSLContext:
@@ -81,13 +84,16 @@ def as_float(value: Any, default: float = 0.0) -> float:
 
 
 def resolved_outcome(outcome_prices: list[Any]) -> str | None:
-    if len(outcome_prices) != 2:
+    if not isinstance(outcome_prices, list) or len(outcome_prices) != 2:
         return None
-    yes_price = float(outcome_prices[0])
-    no_price = float(outcome_prices[1])
-    if yes_price >= 0.999 and no_price <= 0.001:
+    try:
+        yes_price = float(outcome_prices[0])
+        no_price = float(outcome_prices[1])
+    except (TypeError, ValueError):
+        return None
+    if yes_price >= RESOLUTION_PRICE_THRESHOLD and no_price <= 1.0 - RESOLUTION_PRICE_THRESHOLD:
         return "YES"
-    if no_price >= 0.999 and yes_price <= 0.001:
+    if no_price >= RESOLUTION_PRICE_THRESHOLD and yes_price <= 1.0 - RESOLUTION_PRICE_THRESHOLD:
         return "NO"
     return None
 
@@ -214,6 +220,50 @@ def build_neutral_snapshots(markets: list[CollectedMarket], price_points: list[P
     return sorted(rows, key=lambda row: (row["timestamp"], row["market_id"]))
 
 
+def validate_collected_dataset(markets: list[CollectedMarket], snapshots: list[dict[str, Any]]) -> list[str]:
+    errors: list[str] = []
+    for market in markets:
+        conservative_outcome = resolved_outcome([market.final_yes_price, market.final_no_price])
+        if market.resolved_outcome not in {"YES", "NO"}:
+            errors.append(f"market {market.id}: resolved_outcome must be YES or NO")
+        elif conservative_outcome != market.resolved_outcome:
+            errors.append(
+                f"market {market.id}: final prices do not conservatively support {market.resolved_outcome}"
+            )
+        if not market.yes_token_id or not market.no_token_id:
+            errors.append(f"market {market.id}: missing CLOB token ids")
+
+    resolution_rows_by_market: dict[str, int] = {}
+    for index, row in enumerate(snapshots, start=2):
+        yes_price = str(row.get("yes_price", ""))
+        fair_yes = str(row.get("fair_yes", ""))
+        try:
+            prices_match = abs(float(yes_price) - float(fair_yes)) <= 1e-9
+        except ValueError:
+            prices_match = False
+        if not prices_match:
+            errors.append(f"snapshots_neutral.csv row {index}: fair_yes must equal yes_price in neutral plumbing data")
+        outcome = str(row.get("resolved_outcome", "")).upper()
+        if outcome:
+            if outcome not in {"YES", "NO"}:
+                errors.append(f"snapshots_neutral.csv row {index}: resolved_outcome must be YES or NO")
+            market_id = str(row.get("market_id", ""))
+            resolution_rows_by_market[market_id] = resolution_rows_by_market.get(market_id, 0) + 1
+
+    expected_market_ids = {str(market.id) for market in markets}
+    snapshot_market_ids = {str(row.get("market_id", "")) for row in snapshots}
+    missing_snapshot_markets = expected_market_ids - snapshot_market_ids
+    if missing_snapshot_markets:
+        errors.append(f"markets missing neutral snapshot rows: {sorted(missing_snapshot_markets)}")
+
+    for market_id in expected_market_ids:
+        count = resolution_rows_by_market.get(market_id, 0)
+        if count != 1:
+            errors.append(f"market {market_id}: expected exactly one resolution row, found {count}")
+
+    return errors
+
+
 def collect_historical_dataset(
     out_dir: Path,
     markets_count: int = 30,
@@ -234,6 +284,9 @@ def collect_historical_dataset(
     market_ids_with_history = {market.id for market in markets_with_history}
     all_points = [point for point in all_points if point.market_id in market_ids_with_history]
     snapshots = build_neutral_snapshots(markets_with_history, all_points)
+    validation_errors = validate_collected_dataset(markets_with_history, snapshots)
+    if validation_errors:
+        raise ValueError(f"collected historical dataset validation failed: {validation_errors}")
 
     write_csv(
         out_dir / "markets_closed_binary.csv",
@@ -263,6 +316,32 @@ def collect_historical_dataset(
     )
     manifest = {
         "created_at": datetime.now(UTC).isoformat(),
+        "dataset_kind": "resolved_binary_historical_sample",
+        "dataset_modes": {
+            "snapshots_neutral": {
+                "kind": NEUTRAL_DATASET_KIND,
+                "path": "snapshots_neutral.csv",
+                "fair_value_mode": "neutral_market_price",
+                "description": "fair_yes equals observed YES price; use for ingestion/backtest plumbing, not predictive alpha.",
+            },
+            "oracle_smoke": {
+                "kind": ORACLE_SMOKE_DATASET_KIND,
+                "path": "",
+                "description": "not generated by collect_historical; create separately with settlement_smoke for test-only settlement checks.",
+            },
+        },
+        "collection_path": {
+            "market_metadata": "Gamma /markets closed=true active=false enableOrderBook=true",
+            "price_history": "CLOB /prices-history for YES and NO token ids",
+            "resolution_source": "Gamma outcomePrices with conservative 0.999/0.001 binary threshold",
+            "excluded_markets": "negRisk=true, non-Yes/No outcomes, unresolved/ambiguous final prices, missing CLOB token ids",
+        },
+        "generated_files": {
+            "manifest": "manifest.json",
+            "markets": "markets_closed_binary.csv",
+            "token_price_history": "token_price_history.csv",
+            "neutral_snapshots": "snapshots_neutral.csv",
+        },
         "markets_requested": markets_count,
         "markets_collected": len(markets),
         "markets_with_history": len(markets_with_history),
@@ -271,6 +350,9 @@ def collect_historical_dataset(
         "interval": interval,
         "fidelity": fidelity,
         "fair_value_mode": "neutral_market_price",
+        "validation_status": "PASS",
+        "validation_errors": [],
+        "git_tracking_note": "Generated raw/normalized datasets live under data/normalized by default and are ignored by git.",
         "note": "fair_yes equals observed YES price; use this dataset to verify ingestion/backtest plumbing, not strategy alpha.",
     }
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False))

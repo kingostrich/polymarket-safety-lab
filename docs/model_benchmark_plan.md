@@ -10,7 +10,8 @@ The model benchmark flow exists to compare forecast quality, calibration, and ri
 4. Import and audit the model output before replay.
 5. Compute forecast diagnostics, including market-echo checks and Brier/calibration metrics when resolved outcomes are available.
 6. Replay the same rows, bankroll, slippage assumptions, and safety gates for every provider.
-7. Compare returns, drawdown, open exposure, closed-trade count, market-echo behavior, calibration, and baseline performance.
+7. Confirm `source_rows_fingerprint` is identical across benchmark manifests before comparing providers.
+8. Compare returns, drawdown, open exposure, closed-trade count, market-echo behavior, calibration, and baseline performance.
 
 ## API Credit Use
 
@@ -26,6 +27,16 @@ Credits must not be used for live order execution, signing, private-key workflow
 ## Acceptance Criteria
 
 - A benchmark report must identify the provider, model label, source row count, bankroll, forecast cost, and scenario prefix.
+- Benchmark manifests must include `source_rows_fingerprint`; provider comparisons are valid only when that value matches.
 - The report must compare against a no-trade or rule baseline on the same rows.
 - Resolved-market reports must include Brier score, resolved forecast count, excluded unresolved count, and calibration bins.
 - Any model with open positions, missing official resolution replay, negative mark P&L, or worse-than-baseline final equity must remain blocked by the readiness gate.
+
+## Same-Row Evidence
+
+`polymarket_backtest.model_benchmark_run` writes `source_rows_fingerprint` into each `latest_benchmark_manifest.json`. The value is a SHA-256 hash over the source-row input hashes, sorted so file-order differences do not create false mismatches.
+
+Use this rule before ranking models:
+
+- Same `source_rows_fingerprint`: ROI, MDD, open positions, echo rate, actionable rows, and calibration diagnostics can be compared under the configured bankroll and scenario parameters.
+- Different `source_rows_fingerprint`: treat the outputs as separate experiments. Do not use them to rank providers.

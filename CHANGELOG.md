@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added resolved-market collection manifest fields that distinguish neutral plumbing data from test-only oracle smoke data.
+- Added collected historical dataset validation for conservative binary outcomes and neutral `fair_yes` rows.
+- Added same-row benchmark fingerprint evidence to model benchmark manifests.
 - Added PR template with explicit paper-only safety boundary checks.
 - Added Dependabot and CodeQL configuration.
 - Added threat model and security review checklist.

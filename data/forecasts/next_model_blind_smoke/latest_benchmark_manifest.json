@@ -4,6 +4,8 @@
   "provider": "agy",
   "model": "Gemini 3.5 Flash High via agy blind",
   "source_rows": 20,
+  "source_rows_fingerprint": "3d4d8eee92632e10dab550a0ba13ae777f9103fc61cfa21479951633f2a1bfaa",
+  "comparison_invariant": "source_rows_fingerprint must match before comparing providers on identical paper rows",
   "model_rows": 20,
   "imported_records": 20,
   "default_cost": 0.0,

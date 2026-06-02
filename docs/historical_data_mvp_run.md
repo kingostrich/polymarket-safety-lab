@@ -19,6 +19,16 @@ Implemented and ran the first real-data ingestion MVP:
 
 ## Commands
 
+Small contributor smoke sample:
+
+```bash
+PYTHONPATH=src .venv/bin/python -m polymarket_backtest.collect_historical \
+  --out-dir data/normalized/polymarket_recent_binary_smoke \
+  --markets 5 --interval 1d --fidelity 60 --max-pages 5
+```
+
+Larger local sample:
+
 ```bash
 PYTHONPATH=src .venv/bin/python -m polymarket_backtest.collect_historical \
   --out-dir data/normalized/polymarket_recent_binary \
@@ -38,6 +48,12 @@ PYTHONPATH=src .venv/bin/python -m polymarket_backtest.export_dataset \
 Collector manifest:
 
 ```text
+dataset_kind=resolved_binary_historical_sample
+dataset_modes.snapshots_neutral.kind=neutral_plumbing
+dataset_modes.oracle_smoke.kind=oracle_settlement_smoke
+collection_path.market_metadata=Gamma /markets closed=true active=false enableOrderBook=true
+collection_path.price_history=CLOB /prices-history for YES and NO token ids
+collection_path.resolution_source=Gamma outcomePrices with conservative 0.999/0.001 binary threshold
 markets_requested=30
 markets_collected=30
 markets_with_history=30
@@ -46,6 +62,7 @@ snapshots=292
 interval=1d
 fidelity=60
 fair_value_mode=neutral_market_price
+validation_status=PASS
 ```
 
 Backtest result on `snapshots_neutral.csv`:
@@ -82,6 +99,10 @@ data/normalized/polymarket_recent_binary/export/token_price_history.parquet
 data/normalized/polymarket_recent_binary/export/snapshots_neutral.parquet
 data/normalized/polymarket_recent_binary/export/polymarket_recent_binary.duckdb
 ```
+
+`data/raw`, `data/normalized`, and generated paper/backtest outputs are ignored by git. The repository should contain code, docs, curated fixtures, and generated benchmark summaries only when they are intentionally release evidence.
+
+If the collected rows fail conservative outcome or neutral-price validation, the collector raises an error before writing `manifest.json`. A valid manifest with `validation_status=PASS` is required before using the generated CSVs as backtest inputs.
 
 ## Current Limitations
 
