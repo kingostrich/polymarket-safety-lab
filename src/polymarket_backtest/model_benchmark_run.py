@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -15,6 +17,14 @@ from .model_benchmark_summary import build_benchmark_rows
 from .model_benchmark_summary import write_csv as write_summary_csv
 from .model_benchmark_summary import write_markdown as write_summary_markdown
 from .survival import load_paper_rows, load_resolutions, simulate_survival, write_survival_outputs
+
+
+def source_rows_fingerprint(source_rows: list[dict[str, Any]]) -> str:
+    from .forecast_runner import row_input_hash
+
+    row_hashes = sorted(row_input_hash(row) for row in source_rows)
+    payload = json.dumps(row_hashes, separators=(",", ":"), ensure_ascii=True)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def run_model_benchmark(
@@ -118,6 +128,8 @@ def run_model_benchmark(
         "provider": provider,
         "model": model,
         "source_rows": len(source_rows),
+        "source_rows_fingerprint": source_rows_fingerprint(source_rows),
+        "comparison_invariant": "source_rows_fingerprint must match before comparing providers on identical paper rows",
         "model_rows": len(model_rows),
         "imported_records": len(records),
         "default_cost": default_cost,

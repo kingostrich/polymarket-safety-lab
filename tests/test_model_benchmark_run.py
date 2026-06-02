@@ -5,7 +5,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from polymarket_backtest.forecast_runner import row_input_hash
-from polymarket_backtest.model_benchmark_run import run_model_benchmark
+from polymarket_backtest.model_benchmark_run import run_model_benchmark, source_rows_fingerprint
 
 FIELDNAMES = [
     "logged_at",
@@ -36,6 +36,26 @@ def write_jsonl(path: Path, rows: list[dict]) -> None:
 
 
 class ModelBenchmarkRunTest(unittest.TestCase):
+    def test_source_rows_fingerprint_is_order_independent_same_row_evidence(self) -> None:
+        row_a = {
+            "logged_at": "2026-01-01T00:00:00+00:00",
+            "market_id": "m1",
+            "question": "Will it happen?",
+            "yes_bid": "0.49",
+            "yes_ask": "0.51",
+            "no_bid": "0.48",
+            "no_ask": "0.52",
+            "fair_yes": "0.50",
+            "action": "skip",
+            "liquidity": "1000",
+            "volume_24h": "100",
+        }
+        row_b = dict(row_a, market_id="m2", logged_at="2026-01-01T00:01:00+00:00")
+
+        self.assertEqual(source_rows_fingerprint([row_a, row_b]), source_rows_fingerprint([row_b, row_a]))
+        self.assertNotEqual(source_rows_fingerprint([row_a]), source_rows_fingerprint([row_b]))
+        self.assertEqual(source_rows_fingerprint([row_a]), source_rows_fingerprint([dict(row_a, input_hash="external")]))
+
     def test_run_model_benchmark_imports_audits_replays_and_summarizes(self) -> None:
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -91,6 +111,9 @@ class ModelBenchmarkRunTest(unittest.TestCase):
             self.assertEqual(manifest["scenario_prefix"], "custom_survival_")
             self.assertEqual(manifest["resolutions_csv"], "")
             self.assertEqual(manifest["resolutions_loaded"], 0)
+            self.assertEqual(manifest["source_rows"], 1)
+            self.assertEqual(manifest["source_rows_fingerprint"], source_rows_fingerprint([paper_row]))
+            self.assertIn("source_rows_fingerprint", manifest["comparison_invariant"])
             self.assertEqual(manifest["bankroll"], 50.0)
             self.assertEqual(manifest["edge_threshold"], 0.08)
             self.assertEqual(manifest["exit_policy"], "none")

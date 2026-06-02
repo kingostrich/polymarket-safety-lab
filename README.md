@@ -68,23 +68,23 @@ pmlab-backtest --snapshots data/mock/snapshots.csv --bankroll 100
 
 The clone-to-result walkthrough is in `docs/quickstart_walkthrough.md`.
 
-Collect a recent resolved binary-market sample and run a neutral plumbing backtest:
+Collect a small recent resolved binary-market sample and run a neutral plumbing backtest:
 
 ```bash
 PYTHONPATH=src python -m polymarket_backtest.collect_historical \
-  --out-dir data/normalized/polymarket_recent_binary \
-  --markets 30 --interval 1d --fidelity 60
+  --out-dir data/normalized/polymarket_recent_binary_smoke \
+  --markets 5 --interval 1d --fidelity 60 --max-pages 5
 
 PYTHONPATH=src python -m polymarket_backtest.cli \
-  --snapshots data/normalized/polymarket_recent_binary/snapshots_neutral.csv \
+  --snapshots data/normalized/polymarket_recent_binary_smoke/snapshots_neutral.csv \
   --bankroll 100
 
 PYTHONPATH=src .venv/bin/python -m polymarket_backtest.export_dataset \
-  --input-dir data/normalized/polymarket_recent_binary \
-  --output-dir data/normalized/polymarket_recent_binary/export
+  --input-dir data/normalized/polymarket_recent_binary_smoke \
+  --output-dir data/normalized/polymarket_recent_binary_smoke/export
 ```
 
-The collected `snapshots_neutral.csv` sets `fair_yes` equal to the observed YES price. It verifies ingestion and settlement plumbing, not predictive alpha.
+The collected `manifest.json` records the Gamma/CLOB collection path, conservative resolved-outcome validation, generated file names, and separate dataset modes for `neutral_plumbing` versus test-only `oracle_settlement_smoke`. Collection stops before writing the manifest if generated rows fail validation. The collected `snapshots_neutral.csv` sets `fair_yes` equal to the observed YES price. It verifies ingestion and settlement plumbing, not predictive alpha. Generated `data/normalized/*` datasets are ignored by git by default.
 
 Log one forward paper-trading snapshot without placing orders:
 
@@ -226,6 +226,8 @@ PYTHONPATH=src .venv/bin/python -m polymarket_backtest.model_benchmark_summary \
   --output-csv data/forecasts/model_benchmark_summary.csv \
   --output-md docs/model_benchmark_summary.md
 ```
+
+For provider-to-provider comparisons, only compare benchmark manifests with the same `source_rows_fingerprint`. That fingerprint proves the providers were imported, audited, and replayed on identical paper rows; differing fingerprints mean the ROI, MDD, open-position, and calibration columns are not directly comparable.
 
 Summarize a survival event log to inspect open-position exposure:
 
