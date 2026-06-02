@@ -4,15 +4,16 @@ This table compares forecast-file audit results and matching survival replay res
 
 Rows are ranked by audit pass, survival state, source coverage, lower forecast cost, then path. This is a quality screen, not a return ranking.
 
-| rank | benchmark | provider | model | audit | coverage | echo <=1bp | actionable | brier | resolved | excluded | cost | survival | initial | mark equity | mark P&L | calls | opened | open | risk flags |
-|---:|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|---:|---|
-| 1 | agy_smoke/imported | agy | Gemini 3.5 Flash High via agy | PASS | 100.00% | 100.00% | 0 | n/a | 0 | 20 | 0.0000 | ALIVE | 50.00 | 50.00 | 0.00 | 20 | 0 | 0 | no_trades;market_echo;no_actionable_edges |
-| 2 | model_bench_20/rule_baseline | rule_baseline | rule_baseline_midpoint | PASS | 100.00% | 100.00% | 0 | n/a | 0 | 20 | 0.0000 | ALIVE | 50.00 | 50.00 | 0.00 | 20 | 0 | 0 | no_trades;market_echo;no_actionable_edges |
-| 3 | next_model_blind_smoke/imported | agy | Gemini 3.5 Flash High via agy blind | PASS | 100.00% | 0.00% | 11 | n/a | 0 | 20 | 0.0000 | ALIVE | 50.00 | 48.76 | -1.24 | 20 | 7 | 7 | open_positions;loss |
+| rank | benchmark | row set | provider | model | audit | coverage | echo <=1bp | actionable | brier | resolved | excluded | cost | survival | initial | mark equity | mark P&L | calls | opened | open | risk flags |
+|---:|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|---:|---|
+| 1 | agy_smoke/imported | 3d4d8eee9263 | agy | Gemini 3.5 Flash High via agy | PASS | 100.00% | 100.00% | 0 | n/a | 0 | 20 | 0.0000 | ALIVE | 50.00 | 50.00 | 0.00 | 20 | 0 | 0 | no_trades;market_echo;no_actionable_edges |
+| 2 | model_bench_20/rule_baseline |  | rule_baseline | rule_baseline_midpoint | PASS | 100.00% | 100.00% | 0 | n/a | 0 | 20 | 0.0000 | ALIVE | 50.00 | 50.00 | 0.00 | 20 | 0 | 0 | no_trades;market_echo;no_actionable_edges |
+| 3 | next_model_blind_smoke/imported | 3d4d8eee9263 | agy | Gemini 3.5 Flash High via agy blind | PASS | 100.00% | 0.00% | 11 | n/a | 0 | 20 | 0.0000 | ALIVE | 50.00 | 48.76 | -1.24 | 20 | 7 | 7 | open_positions;loss |
 
 ## Notes
 
 - `audit_status=PASS` means the forecast file has full source-row coverage, valid probabilities/costs, and matching input hashes.
+- `row set` is the first 12 characters of `source_rows_fingerprint`; provider comparisons are valid only when this value matches. A blank row set means the legacy run has no benchmark manifest fingerprint.
 - `missing_survival` means a forecast file exists but no matching replay report was found for its model label.
 - `survival_row_mismatch` means a same-label survival report exists, but its row count or forecast-call count does not match the audit file.
 - `multi_provider_counts` and `multi_model_counts` require explicit manifest labels before model-to-survival matching can be trusted.

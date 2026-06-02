@@ -17,6 +17,7 @@ class ModelBenchmarkRow:
     forecast_dir: str
     audit_status: str
     source_rows: int
+    source_rows_fingerprint: str
     forecast_records: int
     matched_records: int
     coverage: float
@@ -79,6 +80,13 @@ def load_survival_reports(survival_root: Path, scenario_prefix: str) -> list[tup
         scenario = report_path.parent.name
         reports.append((scenario, read_json(report_path)))
     return reports
+
+
+def load_benchmark_manifest(forecast_dir: Path) -> dict[str, Any]:
+    for path in (forecast_dir / "latest_benchmark_manifest.json", forecast_dir.parent / "latest_benchmark_manifest.json"):
+        if path.exists():
+            return read_json(path)
+    return {}
 
 
 def survival_by_model(reports: list[tuple[str, dict[str, Any]]]) -> dict[str, list[tuple[str, dict[str, Any]]]]:
@@ -199,6 +207,7 @@ def build_benchmark_rows(
         survival_data = survival or None
         diagnostics_path = forecast_dir / "latest_diagnostics.json"
         diagnostics = read_json(diagnostics_path) if diagnostics_path.exists() else {}
+        benchmark_manifest = load_benchmark_manifest(forecast_dir)
         benchmark = forecast_dir.relative_to(forecast_root).as_posix()
         rows.append(
             ModelBenchmarkRow(
@@ -206,6 +215,7 @@ def build_benchmark_rows(
                 forecast_dir=str(forecast_dir),
                 audit_status=safe_str(audit.get("status")),
                 source_rows=source_rows,
+                source_rows_fingerprint=safe_str(benchmark_manifest.get("source_rows_fingerprint")),
                 forecast_records=forecast_records,
                 matched_records=safe_int(audit.get("matched_records")),
                 coverage=safe_float(audit.get("coverage")),
@@ -251,12 +261,16 @@ def format_brier_score(row: ModelBenchmarkRow) -> str:
     return f"{row.brier_score:.4f}"
 
 
+def short_fingerprint(value: str) -> str:
+    return value[:12] if value else ""
+
+
 def write_csv(rows: list[ModelBenchmarkRow], output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     tmp_path = output_path.with_suffix(output_path.suffix + ".tmp")
     fieldnames = list(asdict(rows[0]).keys()) if rows else list(ModelBenchmarkRow.__dataclass_fields__.keys())
     with tmp_path.open("w", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(asdict(row) for row in rows)
     os.replace(tmp_path, output_path)
@@ -275,14 +289,15 @@ def write_markdown(rows: list[ModelBenchmarkRow], output_path: Path, rank_mode: 
         "",
         rank_note,
         "",
-        "| rank | benchmark | provider | model | audit | coverage | echo <=1bp | actionable | brier | resolved | excluded | cost | survival | initial | mark equity | mark P&L | calls | opened | open | risk flags |",
-        "|---:|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|---:|---|",
+        "| rank | benchmark | row set | provider | model | audit | coverage | echo <=1bp | actionable | brier | resolved | excluded | cost | survival | initial | mark equity | mark P&L | calls | opened | open | risk flags |",
+        "|---:|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|---:|---|",
     ]
     for row in rows:
         pnl = row.final_equity - row.initial_bankroll
         lines.append(
             "| "
-            f"{row.benchmark_rank} | {row.benchmark} | {row.provider} | {row.model} | "
+            f"{row.benchmark_rank} | {row.benchmark} | {short_fingerprint(row.source_rows_fingerprint)} | "
+            f"{row.provider} | {row.model} | "
             f"{row.audit_status} | {row.coverage:.2%} | {row.market_echo_share_1bp:.2%} | "
             f"{row.actionable_rows} | {format_brier_score(row)} | {row.brier_resolved_rows} | "
             f"{row.brier_excluded_rows} | {row.total_cost:.4f} | "
@@ -295,6 +310,7 @@ def write_markdown(rows: list[ModelBenchmarkRow], output_path: Path, rank_mode: 
             "## Notes",
             "",
             "- `audit_status=PASS` means the forecast file has full source-row coverage, valid probabilities/costs, and matching input hashes.",
+            "- `row set` is the first 12 characters of `source_rows_fingerprint`; provider comparisons are valid only when this value matches. A blank row set means the legacy run has no benchmark manifest fingerprint.",
             "- `missing_survival` means a forecast file exists but no matching replay report was found for its model label.",
             "- `survival_row_mismatch` means a same-label survival report exists, but its row count or forecast-call count does not match the audit file.",
             "- `multi_provider_counts` and `multi_model_counts` require explicit manifest labels before model-to-survival matching can be trusted.",

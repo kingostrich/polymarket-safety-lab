@@ -2,13 +2,15 @@
 
 ## Unreleased
 
+## v0.1.3 - 2026-06-02
+
 - Added resolved-market collection manifest fields that distinguish neutral plumbing data from test-only oracle smoke data.
 - Added collected historical dataset validation for conservative binary outcomes and neutral `fair_yes` rows.
 - Added same-row benchmark fingerprint evidence to model benchmark manifests.
 - Added PR template with explicit paper-only safety boundary checks.
 - Added Dependabot and CodeQL configuration.
+- Updated GitHub Actions dependencies to current major versions after green CI and CodeQL checks.
 - Added threat model and security review checklist.
-- Synchronized generated benchmark/readiness reports with current diagnostics.
 - Removed static unit-test count from README badges to reduce stale metadata.
 
 ## v0.1.2 - 2026-06-01
