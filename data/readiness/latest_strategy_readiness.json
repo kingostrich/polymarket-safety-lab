@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-06-01T18:41:10.043955+00:00",
+  "created_at": "2026-06-02T06:28:48.616206+00:00",
   "decision": "NO_LIVE_TRADING",
-  "blocker_count": 5,
+  "blocker_count": 6,
   "warning_count": 0,
   "checks": [
     {
@@ -61,6 +61,14 @@
       "detail": "Final equity can hide path risk; readiness must include the worst observed equity drawdown."
     },
     {
+      "name": "portfolio_joint_exposure",
+      "status": "FAIL",
+      "severity": "blocker",
+      "observed": "status=NOT_PROVIDED, violations=0, validation_errors=0",
+      "required": "portfolio risk manifest status PASS with no joint exposure violations",
+      "detail": "Hedged, correlated, or omitted portfolio-risk evidence prevents readiness from advancing."
+    },
+    {
       "name": "not_market_echo",
       "status": "PASS",
       "severity": "warning",
@@ -80,7 +88,8 @@
   "inputs": {
     "model_benchmark_name": "next_model_blind_100",
     "baseline_benchmark_name": "rule_baseline_100",
-    "resolution_cycle_replay_ran": false
+    "resolution_cycle_replay_ran": false,
+    "portfolio_risk_status": "NOT_PROVIDED"
   },
   "summary": {
     "model_final_equity": 46.07135674680741,

@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Added a paper-only exit-threshold sweep utility for comparing `edge_below` replay thresholds.
+- Added a paper-only multi-leg portfolio schema validator and readiness-gate blocker for grouped exposure violations.
 
 ## v0.1.3 - 2026-06-02
 

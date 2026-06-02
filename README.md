@@ -366,6 +366,24 @@ PYTHONPATH=src .venv/bin/python -m polymarket_backtest.strategy_readiness \
 
 The readiness gate is intentionally conservative. `NO_LIVE_TRADING` means the current evidence is not sufficient for live order placement, signing, or asset movement.
 
+Validate a paper-only multi-leg portfolio risk schema before including related or hedged positions in readiness evidence:
+
+```bash
+PYTHONPATH=src .venv/bin/python -m polymarket_backtest.portfolio_schema \
+  --spec docs/examples/portfolio_hedge_example.json \
+  --out-json data/paper/portfolio_risk_report.json
+```
+
+Then pass the report into the readiness gate:
+
+```bash
+PYTHONPATH=src .venv/bin/python -m polymarket_backtest.strategy_readiness \
+  --portfolio-risk-manifest data/paper/portfolio_risk_report.json
+```
+
+See `docs/multi_leg_portfolio_schema.md` for the schema, active exposure input format, and current paper-only limits.
+If this manifest is omitted, the readiness gate records the missing portfolio-risk evidence as a blocker.
+
 Compare current 100-row model variants against the same no-trade baseline:
 
 ```bash

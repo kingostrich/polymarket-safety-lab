@@ -91,6 +91,7 @@ def assess_readiness(
     resolution_manifest: dict[str, Any],
     resolution_cycle_manifest: dict[str, Any],
     oracle_metrics: dict[str, Any],
+    portfolio_risk_manifest: dict[str, Any] | None = None,
     min_source_rows: int = 100,
     min_closed_trades: int = 30,
     max_drawdown_limit: float = 0.25,
@@ -115,6 +116,10 @@ def assess_readiness(
         str(model_manifest.get(key, "")).lower()
         for key in ["benchmark_name", "provider", "model", "forecasts_file", "forecast_dir"]
     )
+    portfolio_risk_manifest = portfolio_risk_manifest or {}
+    portfolio_violations = portfolio_risk_manifest.get("violations") or []
+    portfolio_validation_errors = portfolio_risk_manifest.get("validation_errors") or []
+    portfolio_status = str(portfolio_risk_manifest.get("status") or "NOT_PROVIDED")
 
     checks = [
         _check(
@@ -174,6 +179,14 @@ def assess_readiness(
             "Final equity can hide path risk; readiness must include the worst observed equity drawdown.",
         ),
         _check(
+            "portfolio_joint_exposure",
+            portfolio_status == "PASS" and len(portfolio_violations) == 0,
+            "blocker",
+            f"status={portfolio_status}, violations={len(portfolio_violations)}, validation_errors={len(portfolio_validation_errors)}",
+            "portfolio risk manifest status PASS with no joint exposure violations",
+            "Hedged, correlated, or omitted portfolio-risk evidence prevents readiness from advancing.",
+        ),
+        _check(
             "not_market_echo",
             market_echo_share < 0.5 and actionable_rows > 0,
             "warning",
@@ -211,6 +224,7 @@ def assess_readiness(
             "model_benchmark_name": model_manifest.get("benchmark_name", ""),
             "baseline_benchmark_name": baseline_manifest.get("benchmark_name", ""),
             "resolution_cycle_replay_ran": replay_ran,
+            "portfolio_risk_status": portfolio_status,
         },
         "summary": {
             "model_final_equity": model_equity,
@@ -280,6 +294,10 @@ def main() -> None:
     parser.add_argument("--resolution-manifest", default="data/paper/resolution_status/model_bench_100/resolution_manifest.json")
     parser.add_argument("--resolution-cycle-manifest", default="data/paper/resolution_status/model_bench_100/latest_resolution_replay_cycle.json")
     parser.add_argument("--oracle-metrics", default="data/backtests/polymarket_recent_binary_10_20260531/oracle_smoke/metrics.json")
+    parser.add_argument(
+        "--portfolio-risk-manifest",
+        help="Portfolio risk report JSON. Omission is recorded as a readiness blocker.",
+    )
     parser.add_argument("--out-json", default="data/readiness/latest_strategy_readiness.json")
     parser.add_argument("--out-md", default="docs/strategy_readiness_gate.md")
     parser.add_argument("--min-source-rows", type=int, default=100)
@@ -293,6 +311,7 @@ def main() -> None:
         resolution_manifest=load_json(Path(args.resolution_manifest)),
         resolution_cycle_manifest=load_json(Path(args.resolution_cycle_manifest)),
         oracle_metrics=load_json(Path(args.oracle_metrics)),
+        portfolio_risk_manifest=load_json(Path(args.portfolio_risk_manifest)) if args.portfolio_risk_manifest else None,
         min_source_rows=args.min_source_rows,
         min_closed_trades=args.min_closed_trades,
         max_drawdown_limit=args.max_drawdown_limit,
