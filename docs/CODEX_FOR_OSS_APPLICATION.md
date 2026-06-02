@@ -29,9 +29,10 @@ Credits will be used to benchmark model-generated Polymarket forecasts across id
 
 - The repository is new and has no external stars or downloads yet.
 - The project currently has low public adoption signals, so the application should not imply broad usage.
-- The project now has a follow-up release path after packaging, CI hardening, sample validation, and calibration diagnostics.
+- The project now has follow-up release evidence after packaging, CI hardening, sample validation, and calibration diagnostics.
 - Financial-risk perception must be managed by emphasizing paper-only safety infrastructure.
-- Community discussions are enabled but need at least one real roadmap or feedback thread before applying.
+- Community discussions are enabled but need more real feedback threads before applying.
+- The strongest remaining gap is public adoption evidence, not core code volume.
 
 ## Submission Timing
 
@@ -50,6 +51,8 @@ Recommended application date if there is no deadline pressure: 2026-06-15 or lat
 - `docs/safety_gate_spec.md` defines the `NO_LIVE_TRADING` blockers and paper bankroll-depletion stop condition.
 - At least one public issue is closed after visible implementation work.
 - A follow-up release documents the paper-only status, sample validation, and forecast calibration diagnostics.
+- Security hardening evidence includes CodeQL, Dependabot, a PR template, and a threat model.
+- Generated benchmark/readiness docs are synchronized with the current release.
 
 ## Application Evidence Links To Include
 
@@ -59,3 +62,9 @@ Recommended application date if there is no deadline pressure: 2026-06-15 or lat
 - Safety gate spec: `docs/safety_gate_spec.md`
 - Readiness gate report: `docs/strategy_readiness_gate.md`
 - Model benchmark evidence: `docs/model_variant_comparison_100.md`
+- Threat model: `docs/threat_model.md`
+- Security review checklist: `docs/security_review_checklist.md`
+
+## Go/No-Go Recommendation
+
+Do not submit immediately unless there is a deadline. The preferred application window is after at least two weeks of visible maintenance, one more clean release, and at least one external feedback or contributor interaction. If applying early, be explicit that the project is early and frame the value as an under-served safety infrastructure niche rather than established ecosystem adoption.

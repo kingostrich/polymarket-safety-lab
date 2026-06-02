@@ -5,7 +5,7 @@ Paper-only Polymarket prediction-market backtesting, forecast auditing, and live
 [![CI](https://github.com/kingostrich/polymarket-safety-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/kingostrich/polymarket-safety-lab/actions/workflows/ci.yml)
 ![Paper only](https://img.shields.io/badge/paper--only-no%20live%20trading-blue)
 ![No signing](https://img.shields.io/badge/no%20signing-no%20private%20keys-green)
-![Tests](https://img.shields.io/badge/tests-137%20unit%20tests-informational)
+![Tests](https://img.shields.io/badge/tests-pytest-informational)
 ![Status](https://img.shields.io/badge/current%20gate-NO__LIVE__TRADING-red)
 
 This project is an open-source research scaffold for evaluating prediction-market strategies without placing live orders. It focuses on reproducible data collection, paper accounting, model forecast auditing, official-resolution replay, and explicit safety gates for AI-agent experiments.
@@ -35,6 +35,15 @@ These are paper-simulation safety blockers, not build failures:
 - Closed non-oracle forward trade count is below the readiness threshold.
 
 Use this repository as a research and safety-validation environment, not as a live trading bot.
+
+## Reviewer Snapshot
+
+- Latest release: [`v0.1.2`](https://github.com/kingostrich/polymarket-safety-lab/releases/tag/v0.1.2)
+- CI coverage: Python 3.11 tests, Python 3.12 tests, Ruff lint, and package build.
+- Local test suite: `pytest` suite across backtesting, forecast audit, calibration, survival replay, and readiness gates.
+- Core install: intentionally has no default runtime dependencies; `duckdb` is optional for export workflows.
+- Safety posture: paper-only by default, with no live execution, signing, private-key loading, or asset movement.
+- Current gate: `NO_LIVE_TRADING`, documented in `docs/strategy_readiness_gate.md`.
 
 ## Hard Safety Boundaries
 

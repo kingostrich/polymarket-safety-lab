@@ -300,6 +300,37 @@ class ModelBenchmarkSummaryTest(unittest.TestCase):
         self.assertNotIn("| 0 | 0.0000 | 0 | 3 |", content)
         self.assertIn("Calibration bins are written", content)
 
+    def test_legacy_diagnostics_without_brier_marks_forecasts_excluded(self) -> None:
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            forecast_root = root / "forecasts"
+            survival_root = root / "paper"
+            write_json(
+                forecast_root / "legacy" / "latest_audit.json",
+                {
+                    "status": "PASS",
+                    "source_rows": 5,
+                    "forecast_records": 5,
+                    "matched_records": 5,
+                    "coverage": 1.0,
+                    "provider_counts": "provider:5",
+                    "model_counts": "legacy-model:5",
+                },
+            )
+            write_json(
+                forecast_root / "legacy" / "latest_diagnostics.json",
+                {
+                    "market_echo_share_1bp": 1.0,
+                    "actionable_rows": 0,
+                    "diagnosis_flags": "market_echo;no_actionable_edges",
+                },
+            )
+
+            rows = build_benchmark_rows(forecast_root, survival_root, "model_bench_20_survival_")
+
+        self.assertEqual(rows[0].brier_resolved_rows, 0)
+        self.assertEqual(rows[0].brier_excluded_rows, 5)
+
 
 if __name__ == "__main__":
     unittest.main()
